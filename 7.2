@@ -1,0 +1,55 @@
+#include <iostream>
+#include <cmath>
+#include <stdarg.h>
+using namespace std;
+
+double len(int x1, int y1, int x2, int y2)
+{
+    return sqrt(pow((y2 - y1), 2) + pow((x2 - x1), 2));
+}
+double S(int x1, int y1, int x2, int y2, int x3, int y3)
+{
+    double AB = len(x1, y1, x2, y2);
+    double BC = len(x2, y2, x3, y3);
+    double CD = len(x3, y3, x1, y1);
+    double p = (AB + BC + CD) / 2;
+    return sqrt(p * (p - AB) * (p - BC) * (p - CD));
+}
+double square1(int k, ...)
+{
+    va_list args;
+    va_start(args, k);
+    int** mas = new int * [k / 2];
+    for (int i = 0; i < (k/2); i ++)
+    {
+        mas[i] = new int[2];
+        for (int j = 0; j < 2; ++j)
+        {
+            mas[i][j] = va_arg(args, int);;
+
+        }
+    }
+    int max_len = 0,x1,x2,y1,y2;
+    double max_S = 0;
+    for (int i = 0; i < (k / 2); i++)
+        for (int j = i + 1; j < k / 2; j++)
+            if ((len(mas[i][0], mas[i][1], mas[j][0], mas[j][1])) > max_len)
+            {
+                max_len = (len(mas[i][0], mas[i][1], mas[j][0], mas[j][1]));
+                x1 = mas[i][0];
+                y1 = mas[i][1];
+                x2 = mas[j][0];
+                y2 = mas[j][1];
+            }
+    for (int i = 0; i < (k / 2); i++)
+        if ((S(x1, y1, x2, y2, mas[i][0], mas[i][1])) > max_S)
+            max_S = (S(x1, y1, x2, y2, mas[i][0], mas[i][1]));
+    va_end(args);
+    return max_S;
+}
+int main()
+{
+    cout << len(0, 0, 2, 1) << endl;
+    cout << S(0, 0, 5, 0, 0, 5) << endl;
+    cout << square1(12, 0, 0, 1, 0, 2, 1, 1, 2, 0, 2, -1, 1) << endl;
+    return 0;
