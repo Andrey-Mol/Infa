@@ -1,0 +1,95 @@
+#include <iostream>
+using namespace std;
+
+char*  udalenie(char* str)
+{
+
+    char* str2 = new char[256];
+
+    int i = 1;
+    int y = 0;
+    do
+    {
+        str2[y] = str[i];
+        i++;
+        y++;
+    }while (str[i-1] != '0');
+    while (str[i] != '0')
+    {
+        i++;
+    }
+    while (str[i] != '\0')
+    {
+        str2[y] = str[i];
+        i++;
+        y++;
+    } 
+    cout << endl;
+    for (int j = 0; j < y; j++)
+        cout << str2[j];
+    return str2;
+}
+
+string** udalenie(string** arr, int size_1, int size_2)
+{
+    
+    cout << endl << "Результат:" << endl;
+    string** arr2 = new string * [(size_1 + 1) / 2];
+    int k = -1;
+    for (int i = 0; i < size_1; i += 2)
+    {
+        k++;
+        arr2[i - k] = new string[size_2];
+        for (int j = 0; j < size_2; ++j)
+        {
+            arr2[i - k][j] = arr[i][j];
+
+        }
+    }
+    for (int i = 0; i < ((size_1 + 1) / 2); i++)
+    {
+        for (int j = 0; j < size_2; ++j)
+        {
+            cout << arr2[i][j]<<' ';
+        }
+        cout << endl;
+    }
+    return arr2;
+}
+
+int main()
+{
+    bool flag;
+    setlocale(LC_ALL, "Ru");
+    cout << "Введите 0 и массив если он однострочный (Пример: 0 массив), или 1, если он двумерный" << endl;
+    cin >> flag;
+
+    if (flag)
+    {
+        cout << endl << "Введите размерность массива" << endl;
+        int size_1, size_2;
+        cin >> size_1 >> size_2;
+        cout << endl;
+        cout << "Введите массив" << endl;
+        char str[256];
+        string** arr = new string * [size_1];
+        for (int i = 0; i < size_1; ++i) {
+            arr[i] = new string[size_2];
+            for (int j = 0; j < size_2; ++j)
+            {
+                cin >> str;
+                arr[i][j] = str;
+            }
+
+        }
+        udalenie(arr, size_1, size_2);
+    }
+    else
+    {
+        char str[256]; 
+        gets_s(str);
+        udalenie(str);
+    }
+
+    return 0;
+}
