@@ -1,0 +1,87 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+using namespace std;
+
+int fact(int m)
+{
+	if (m == 1)
+	{
+		return m;
+	}
+	else
+	{
+		return m * (fact(m - 1));
+	}
+}
+
+double step(double m, int r)
+{
+	if (r == 1)
+	{
+		return m;
+	}
+	else
+	{
+		return m * (step(m, r - 1));
+	}
+}
+
+double summa_po_n(double x, int n)
+{
+	if (n == 0)
+	{
+		return x;
+	}
+	else
+	{
+		return ((step(x, (2 * n + 1))) / (fact(n))) + summa_po_n(x, n - 1);
+	}
+}
+double summa_po_e(double x, double e, int n)
+{
+	if (abs(summa_po_n(x,n)- summa_po_n(x, n-1))<e)
+	{
+		if (n > 9)
+		{
+			cout << "Ne = " << n<< "       ";
+		}
+		else
+		{
+			cout << "Ne = " << n << "        ";
+		}
+		return summa_po_n(x, n);
+	}
+	else
+	{
+		return summa_po_e(x,e,n+1);
+	}
+}
+double vivod_po_x(double x, int n, double e)
+{
+	char s[20];
+	sprintf(s, "%.2lf", x);
+	cout  << "x = " << s << "       ";
+	sprintf(s, "%.13lf", summa_po_n(x, n));
+	cout  << "Sn = "  << s << "      ";
+	sprintf(s, "%.13lf", summa_po_e(x, e, 2));
+	cout << "Se = " << s << " " << "    |";
+	sprintf(s, "%.15lf", summa_po_e(x, 0.0000000001, 2));
+	cout << "Y = " << s << " " << endl;
+	return 0;
+}
+
+int main()
+{
+	double a, b, e, x;
+	int k, n;
+	setlocale(0, "");
+	cout << "Введите границы интервала, диапазон шага, количество n, точность e"<< endl;
+	cin >> a >> b >> k >> n >> e;
+	x = a;
+	while (x < b-0.000000000001)
+	{
+		vivod_po_x(x, n, e);
+		x += ((b - a) / k);
+	}
+	return 0;
+}
