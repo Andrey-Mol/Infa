@@ -56,7 +56,7 @@ double summa_po_e(double x, double e, int n)
 		return summa_po_e(x,e,n+1);
 	}
 }
-double vivod_po_x(double x, int n, double e)
+void vivod_po_x(double x, int n, double e)
 {
 	char s[20];
 	sprintf(s, "%.2lf", x);
@@ -67,7 +67,6 @@ double vivod_po_x(double x, int n, double e)
 	cout << "Se = " << s << " " << "    |";
 	sprintf(s, "%.15lf", summa_po_e(x, 0.0000000001, 2));
 	cout << "Y = " << s << " " << endl;
-	return 0;
 }
 
 int main()
