@@ -1,0 +1,86 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+using namespace std;
+
+int factorial(int m)
+{
+	if (m == 1)
+	{
+		return m;
+	}
+	else
+	{
+		return m * (factorial(m - 1));
+	}
+}
+
+double pow(double m, int r)
+{
+	if (r == 1)
+	{
+		return m;
+	}
+	else
+	{
+		return m * (pow(m, r - 1));
+	}
+}
+
+double Sn(double x, int n)
+{
+	if (n == 0)
+	{
+		return x;
+	}
+	else
+	{
+		return ((pow(x, (2 * n + 1))) / (factorial(n))) + Sn(x, n - 1);
+	}
+}
+double Se(double x, double e, int n)
+{
+	if (abs(Sn(x, n) - Sn(x, n - 1)) < e)
+	{
+		if (n > 9)
+		{
+			cout << "Ne = " << n << "       ";
+		}
+		else
+		{
+			cout << "Ne = " << n << "        ";
+		}
+		return Sn(x, n);
+	}
+	else
+	{
+		return Se(x, e, n + 1);
+	}
+}
+void Out_x(double x, int n, double e)
+{
+	char s[20];
+	sprintf(s, "%.2lf", x);
+	cout << "x = " << s << "       ";
+	sprintf(s, "%.13lf", Sn(x, n));
+	cout << "Sn = " << s << "      ";
+	sprintf(s, "%.13lf", Se(x, e, 2));
+	cout << "Se = " << s << " " << "    |";
+	sprintf(s, "%.15lf", Se(x, 0.0000001, 2));
+	cout << "Y = " << s << " " << endl;
+}
+
+int main()
+{
+	double a, b, e, x;
+	int k, n;
+	setlocale(0, "");
+	cout << "Введите границы a и b, диапазон k количество n, точность e" << endl;
+	cin >> a >> b >> k >> n >> e;
+	x = a;
+	while (x < b - 0.000000000001)
+	{
+		Out_x(x, n, e);
+		x += ((b - a) / k);
+	}
+	return 0;
+}
