@@ -1,0 +1,449 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+int n; //кол-во учеников, считывание в main
+char filename[] = "test.txt";
+char filename_temp[] = "temp.txt";
+int** mas_of_date = new int* [n];
+bool zashita_ot_otsutstvia_familii;
+char next_surname[255];
+
+int getValue(string query)
+{
+	float value;
+	cout << query.c_str();
+	while (!(cin >> value))
+	{
+		if (cin.eof())
+		{
+			throw "eof";
+		}
+		cin.clear(); //Сбрасываем флаг ошибки, если таковая была
+		cin.ignore(1000, '\n'); //Игнорируем оставшиеся в потоке данные
+		cout << "Ошибка ввода, попробуйте снова: ";
+	}
+	return value;
+}
+
+struct Student
+{
+	char name[255], surname[255], surname2[255];
+	int date[3];
+	char address[255];
+	int rating;
+};
+Student student2;
+void proverka_dat()
+{
+	int h,g;
+	for (int i = 0; i < n; i++)
+	{
+		h = 0;
+		if (mas_of_date[i][3] == 0)
+		{
+			for (int j = i+1; j < n; j++)
+			{
+				g = 0;
+				for (int t = 0; t < 3; t++)
+				{
+					if (mas_of_date[i][t] == mas_of_date[j][t])
+					{
+						g++;
+					}
+				}
+				if (g == 3)
+					h++;
+
+			}
+			if (h > 0)
+			{
+				mas_of_date[i][3] = 1;
+				for (int j = i+1; j < n; j++)
+				{
+					for (int t = 0; t < 3; t++)
+					{
+						if (mas_of_date[i][t] == mas_of_date[j][t])
+						{
+							mas_of_date[j][3] = 1;
+						}
+					}
+
+				}
+			}
+		}
+	}
+}
+int createFile() //Создание БД с n-структурами Student;
+{
+	FILE* file; //указатель на файл
+	if ((file = fopen(filename, "wb")) == NULL) //ошибка открытия файла 
+	{
+		cout << "error" << endl;
+		return 1;
+	}
+	for (unsigned int i = 1; i <= n; ++i) //цикл по студентам
+	{
+		Student student;
+		char l='r';
+		cout << "Введите ФИО: " << endl;
+		cin.get();
+		cout << "* Введите фамилию: ";
+		cin.getline(student.surname, 255);
+		cout << "* Введите имя: ";
+		cin.getline(student.name, 255);
+		cout << "* Введите отчество: ";
+		cin.getline(student.surname2, 255);
+		cout << "Введите дату рождения: "<< endl;
+		student.date[0] = 0;
+		while (student.date[0] < 1 || student.date[0] > 31)
+		{
+			student.date[0] = getValue("* Введите день: ");
+			if (student.date[0] < 1 || student.date[0] > 31)
+				cout << "\nОшибка ввода, день не может иметь такое значение!\n\n";
+		}
+		student.date[1] = 0;
+		while (student.date[1] < 1 || student.date[1] > 12)
+		{
+			student.date[1] = getValue("* Введите месяц: ");
+			if (student.date[1] < 1 || student.date[1] > 12)
+				cout << "\nОшибка ввода, месяц не может иметь такое значение!\n\n";
+		}
+		student.date[2] = getValue("* Введите год: ");
+		if (student.date[2] < 24)
+			student.date[2] += 2000;
+		else if (student.date[2] < 101)
+			student.date[2] += 1900;
+		else if (student.date[2] < 1900)
+		{
+			while (student.date[2] < 1900 && (l != 'y') && student.date[2] > 100)
+			{
+				cout << "Подтвердите правильность ввода да/нет буквой (y/n)" << endl;
+				cin >> l;
+				if (l == 'n')
+					student.date[2] = getValue("* Введите год: ");
+			}
+			if (student.date[2] < 24)
+			student.date[2] += 2000;
+			else if (student.date[2] < 101)
+			student.date[2] += 1900;
+		}
+		
+		cout << "Введите адрес: ";
+		cin.get();
+		cin.getline(student.address, 255);
+		student.rating = getValue("Введите рейтинг: ");
+		cout << "_______________________________________________________________" << endl;
+
+		fwrite(&student, sizeof(Student), 1, file); //запись структуры
+	}
+	fclose(file); //закрываем файл
+	return 0;
+}
+void outputFile() //вывод содержимого файла
+{
+	FILE* file;
+	if ((file = fopen(filename, "rb")) == NULL)
+	{
+		cout << "error" << endl;
+		return;
+	}
+	unsigned int count = 1;
+	while (!feof(file) && count <= n)
+	{
+		Student student;
+		fread(&student, sizeof(Student), 1, file);
+		cout << "ФИО: " << student.surname << " " << student.name << " " << student.surname2 << endl;
+		cout << "Дата рождения: ";
+		if (student.date[0]/10==0)
+			cout <<"0" << student.date[0] << ".";
+		else
+			cout << student.date[0] << ".";
+		if (student.date[1] / 10 == 0)
+			cout << "0" << student.date[1] << ".";
+		else
+			cout << student.date[1] << ".";
+		cout << student.date[2] << " г. ";
+		cout << "Адрес: " << student.address << endl;
+		cout << "Рейтинг: ";
+		cout << student.rating;
+		cout << endl << "_______________________________________________________________" << endl;
+		if (ferror(file)) {
+			perror("Read error");
+			break;
+		}
+		++count;
+	}
+	fclose(file);
+	return;
+} //вывод содержимого файла //
+int deleteElemFile() 
+{
+	FILE* file1;
+	FILE* file2;
+
+	if (((file1 = fopen(filename, "rb")) == NULL) || ((file2 = fopen(filename_temp, "wb")) == NULL))
+	{
+		cout << "error" << endl;
+		return 0;
+	}
+	int nums = n;
+	int count = 0;
+	while (!feof(file1) && (count + 1) <= nums)
+	{
+		Student student;
+		fread(&student, sizeof(Student), 1, file1);
+		mas_of_date[count] = new int[4];
+		for (int j = 0; j < 3; j++)
+			mas_of_date[count][j] = student.date[j];
+		mas_of_date[count][3] = 0;
+		++count;
+	}
+	fclose(file1);
+	proverka_dat();
+	count = 0;
+	file1 = fopen(filename, "rb");
+	int p;
+	while (!feof(file1) && (count + 1) <= nums)
+	{
+		Student student;
+		p = 0;
+		fread(&student, sizeof(Student), 1, file1);
+		if (mas_of_date[count][3] != 0)
+		{
+			--n;
+		}
+		else fwrite(&student, sizeof(Student), 1, file2);
+		++count;
+	}
+	fclose(file1);
+	fclose(file2);
+	remove(filename);
+	rename(filename_temp, filename);
+	if (n == 0)
+		return 1;
+	return 0;
+}
+void addElemFile() //добавление нового чел-ка после указанного
+{
+	FILE* file1;
+	FILE* file2;
+	if (((file1 = fopen(filename, "rb")) == NULL) || ((file2 = fopen(filename_temp, "wb")) == NULL))
+	{
+		cout << "error" << endl;
+		return;
+	}
+	int count = 1;
+	int num = n;
+	while (!feof(file1) && count <= num)
+	{
+		Student student;
+		fread(&student, sizeof(Student), 1, file1);
+		if (!strcmp(next_surname, student.surname) && !zashita_ot_otsutstvia_familii)
+		{
+			fwrite(&student2, sizeof(Student), 1, file2);
+			fwrite(&student, sizeof(Student), 1, file2);
+			cout << endl << "Ученик добавлен!\n\n";
+			zashita_ot_otsutstvia_familii = 1;
+			n++;
+		}
+		else
+		{
+			fwrite(&student, sizeof(Student), 1, file2);
+		}
+		++count;
+	}
+	fclose(file1);
+	fclose(file2);
+	remove(filename);
+	rename(filename_temp, filename);
+}
+int vvod_std2()
+{
+	char l = 't';
+	cout << endl << "Введите нового ученика: " << endl;
+	cout << "Введите ФИО: " << endl;
+	cin.get();
+	cout << "* Введите фамилию: ";
+	cin.getline(student2.surname, 255);
+	cout << "* Введите имя: ";
+	cin.getline(student2.name, 255);
+	cout << "* Введите отчество: ";
+	cin.getline(student2.surname2, 255);
+	cout << "Введите дату рождения: " << endl;
+	student2.date[0] = 0;
+	while (student2.date[0] < 1 || student2.date[0] > 31)
+	{
+		student2.date[0] = getValue("* Введите день: ");
+		if (student2.date[0] < 1 || student2.date[0] > 31)
+			cout << "\nОшибка ввода, день не может иметь такое значение!\n\n";
+	}
+	student2.date[1] = 0;
+	while (student2.date[1] < 1 || student2.date[1] > 12)
+	{
+		student2.date[1] = getValue("* Введите месяц: ");
+		if (student2.date[1] < 1 || student2.date[1] > 12)
+			cout << "\nОшибка ввода, месяц не может иметь такое значение!\n\n";
+	}
+	student2.date[2] = getValue("* Введите год: ");
+	if (student2.date[2] < 24)
+		student2.date[2] += 2000;
+	else if (student2.date[2] < 101)
+		student2.date[2] += 1900;
+	else if (student2.date[2] < 1900)
+	{
+		while (student2.date[2] < 1900 && (l != 'y') && student2.date[2] > 100)
+		{
+			cout << "Подтвердите правильность ввода да/нет буквой (y/n)" << endl;
+			cin >> l;
+			if (l == 'n')
+				student2.date[2] = getValue("* Введите год: ");
+		}
+		if (student2.date[2] < 24)
+			student2.date[2] += 2000;
+		else if (student2.date[2] < 101)
+			student2.date[2] += 1900;
+	}
+	cout << "Введите адрес: ";
+	cin.get();
+	cin.getline(student2.address, 255);
+	student2.rating = getValue("Введите рейтинг: ");
+	cout << "_______________________________________________________________" << endl;
+	return 0;
+}
+
+void vvod_iz_faila()
+{
+	FILE* file1;
+	FILE* file2;
+	if (((file1 = fopen(filename, "rb")) == NULL) || ((file2 = fopen(filename_temp, "wb")) == NULL))
+	{
+		cout << "error" << endl;
+		return;
+	}
+
+	while (!feof(file1))
+	{
+		Student student;
+		fread(&student, sizeof(Student), 1, file1);
+		if (!feof(file1))
+		{
+			fwrite(&student, sizeof(Student), 1, file2);
+			n++;
+		}
+	}
+	fclose(file1);
+	fclose(file2);
+	remove(filename);
+	rename(filename_temp, filename);
+}
+
+int main()
+{
+	setlocale(0, "");
+	int deistvie = 1;
+	int vvod = 0;
+	cout << "Привет, дорогой Друг. Это программа создана для работы с базой данных учеников. Расскажу тебе о своих возможностях.\n";
+	cout << "Для выполнения нижеследующих действий тебе необходимо ввести соответствующую цифру\n";
+	while (deistvie != 0)
+	{
+		cout << "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+		cout << endl << 1 << " - создение БД" << endl << 2 << " - вывод БД" << endl << 3 << " - удаление учеников с одинаковой датой рождения" << endl << 4 << " - ввод данных ученика для добавления в БД" << endl << 5 << " - добавление ученика в БД перед указанной фамилией\n" << 6 << " - чтение данных из файла\n" << 0 << " - завершение работы программы\n \n";
+		cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+		cin >> deistvie;
+		switch (deistvie)
+		{
+		case 1:
+		{
+			n = getValue("Введите кол-во обущающихся в группе: ");
+			while (!n)
+			{
+				cout << endl << "Ошибка ввода, n не может быть равным 0. Попробуйте снова!" << endl << endl;
+				n = getValue("Введите кол-во обущающихся в группе: ");
+			}
+			createFile();
+			break;
+		}
+		case 2:
+		{
+			
+			if (n == 0)
+				cout << "\nБаза данных пуста.\n\n";
+			else
+			{
+				cout << endl << "Введённые ученики:" << endl << endl;
+				outputFile();
+			}
+			break;
+		}
+		case 3:
+		{
+			if (n == 0)
+			{
+				cout << "\nБаза данных пуста.\n\n";
+			}
+			else if (n > 1)
+			{
+				cout << endl << "Оставшиеся ученики:" << endl << endl;
+				deleteElemFile();
+				if (n > 0)
+					outputFile();
+				else
+				{
+					cout << "База данных пуста!\n\n";
+					remove(filename);
+				}
+					
+			}
+			else
+				cout << endl << "Введён один ученик, удаление невозможно" << endl << endl;
+			break;
+		}
+		case 4:
+		{
+			vvod_std2();
+			vvod = 1;
+			break;
+		}
+		case 5:
+		{
+			if (n > 0)
+			{
+				if (vvod == 1)
+				{
+					zashita_ot_otsutstvia_familii = 0;
+					cout << "Введите фамилию, перед которой хотите ввести пользователя: ";
+					cin.get();
+					cin.getline(next_surname, 255);
+					addElemFile();
+					if (zashita_ot_otsutstvia_familii == 0)
+					{
+						cout << endl << "Ученик с данной фамилией не найден, попробуйте выполнить операцию ещё раз с другой фамилией!" << endl << endl;
+					}
+				}
+				else
+					cout << "\n\nВы ещё не введи данные ученика для добавления. Выберете сначала 4 пункт меню.\n\n";
+			}
+			else 
+				cout << "База данных пуста!";
+			break;
+		}
+		case 6:
+		{
+			n = 0;
+			vvod_iz_faila();
+			cout << "\n\nИз файла добавлено "<<n<<" учеников\n\n";
+			break;
+		}
+		case 0:
+			cout << "Спасибо за выбор нашей программы!:)\n";
+			system("pause");
+			return 0;
+		default:
+			cout << endl << "Введено неверное значение, попробуйте ещё раз." << endl << endl;
+			break;
+		}
+	}
+	return 0;
+}
