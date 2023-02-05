@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <stdio.h>
+#include<windows.h>
 using namespace std;
 
 int n; //кол-во учеников, считывание в main
@@ -486,6 +487,8 @@ void menu()
 
 int main()
 {
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
 	setlocale(0, "");
 	cout << "Привет, дорогой Друг. Это программа создана для работы с базой данных учеников. Расскажу тебе о своих возможностях.\n";
 	cout << "Для выполнения нижеследующих действий тебе необходимо ввести соответствующую цифру\n";
