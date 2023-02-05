@@ -458,7 +458,10 @@ void menu()
 			n = 0;
 			vvod_iz_faila();
 			system("cls");
-			cout << "\n\nИз файла добавлено " << n << " учеников\n\n";
+			if (n==0)
+				cout << "\n\nУченики в базе не найдены!\n\n";
+			else
+				cout << "\n\nИз файла добавлено " << n << " учеников\n\n";
 			break;
 		}
 		case 7:
