@@ -24,12 +24,25 @@ int getValue(string query)
 	return value;
 }
 
+float getValueF(string query)
+{
+	float value;
+	cout << query;
+	while (!(cin >> value) || value < 1)
+	{
+		cin.clear(); //Сбрасываем флаг ошибки, если таковая была
+		cin.ignore(1000, '\n'); //Игнорируем оставшиеся в потоке данные
+		cout << "Ошибка ввода, попробуйте снова: ";
+	}
+	return value;
+}
+
 struct Student
 {
 	char name[255], surname[255], surname2[255];
 	int date[3];
 	char address[255];
-	int rating;
+	float rating;
 };
 Student student2;
 void proverka_dat()
@@ -96,43 +109,57 @@ int createFile() //Создание БД с n-структурами Student;
 		cin.getline(student.surname2, 255);
 		cout << "Введите дату рождения: \n";
 		student.date[0] = 0;
-		while (student.date[0] < 1 || student.date[0] > 31)
-		{
-			student.date[0] = getValue("* Введите день: ");
-			if (student.date[0] < 1 || student.date[0] > 31)
-				cout << "\nОшибка ввода, день не может иметь такое значение!\n\n";
-		}
 		student.date[1] = 0;
-		while (student.date[1] < 1 || student.date[1] > 12)
+		while (!(student.date[0] && student.date[1]))
 		{
-			student.date[1] = getValue("* Введите месяц: ");
-			if (student.date[1] < 1 || student.date[1] > 12)
-				cout << "\nОшибка ввода, месяц не может иметь такое значение!\n\n";
-		}
-		student.date[2] = getValue("* Введите год: ");
-		if (student.date[2] < 24)
-			student.date[2] += 2000;
-		else if (student.date[2] < 101)
-			student.date[2] += 1900;
-		else if (student.date[2] < 1900)
-		{
-			while (student.date[2] < 1900 && (l != 'y') && student.date[2] > 100)
+			while (student.date[0] < 1 || student.date[0] > 31)
 			{
-				cout << "Подтвердите правильность ввода да/нет буквой (y/n)\n";
-				cin >> l;
-				if (l == 'n')
-					student.date[2] = getValue("* Введите год: ");
+				student.date[0] = getValue("* Введите день: ");
+				if (student.date[0] < 1 || student.date[0] > 31)
+					cout << "\nОшибка ввода, день не может иметь такое значение!\n\n";
 			}
+			while (student.date[1] < 1 || student.date[1] > 12)
+			{
+				student.date[1] = getValue("* Введите месяц: ");
+				if (student.date[1] < 1 || student.date[1] > 12)
+					cout << "\nОшибка ввода, месяц не может иметь такое значение!\n\n";
+			}
+			student.date[2] = getValue("* Введите год: ");
 			if (student.date[2] < 24)
-			student.date[2] += 2000;
+				student.date[2] += 2000;
 			else if (student.date[2] < 101)
-			student.date[2] += 1900;
+				student.date[2] += 1900;
+			else if (student.date[2] < 1900)
+			{
+				while (student.date[2] < 1900 && (l != 'y') && student.date[2] > 100)
+				{
+					cout << "Подтвердите правильность ввода да/нет буквой (y/n)\n";
+					cin >> l;
+					if (l == 'n')
+						student.date[2] = getValue("* Введите год: ");
+				}
+				if (student.date[2] < 24)
+					student.date[2] += 2000;
+				else if (student.date[2] < 101)
+					student.date[2] += 1900;
+			}
+			else if (student.date[2] > 2023)
+			{
+				cout << "Год не может привышать 2023. Попробуйте снова!\n";
+				student.date[2] = getValue("* Введите год: ");
+			}
+			if ((student.date[0] > 29 && student.date[1] == 2 && ((student.date[2]%4)==0)) || (student.date[0] > 28 && student.date[1] == 2 && ((student.date[2] % 4) != 0)) || (student.date[0] > 30 && student.date[1] % 2 == 0))
+			{
+				student.date[0] = 0;
+				student.date[1] = 0;
+				student.date[2] = 0;
+				cout << "\nОшибка ввода, такая дата невозможна!\n\n";
+			}
 		}
-		
 		cout << "Введите адрес: ";
 		cin.get();
 		cin.getline(student.address, 255);
-		student.rating = getValue("Введите рейтинг: ");
+		student.rating = getValueF("Введите рейтинг: ");
 		cout << "_______________________________________________________________\n";
 
 		fwrite(&student, sizeof(Student), 1, file); //запись структуры
@@ -269,42 +296,57 @@ int vvod_std2()
 	cin.getline(student2.surname2, 255);
 	cout << "Введите дату рождения: \n";
 	student2.date[0] = 0;
-	while (student2.date[0] < 1 || student2.date[0] > 31)
-	{
-		student2.date[0] = getValue("* Введите день: ");
-		if (student2.date[0] < 1 || student2.date[0] > 31)
-			cout << "\nОшибка ввода, день не может иметь такое значение!\n\n";
-	}
 	student2.date[1] = 0;
-	while (student2.date[1] < 1 || student2.date[1] > 12)
+	while (!(student2.date[0] && student2.date[1]))
 	{
-		student2.date[1] = getValue("* Введите месяц: ");
-		if (student2.date[1] < 1 || student2.date[1] > 12)
-			cout << "\nОшибка ввода, месяц не может иметь такое значение!\n\n";
-	}
-	student2.date[2] = getValue("* Введите год: ");
-	if (student2.date[2] < 24)
-		student2.date[2] += 2000;
-	else if (student2.date[2] < 101)
-		student2.date[2] += 1900;
-	else if (student2.date[2] < 1900)
-	{
-		while (student2.date[2] < 1900 && (l != 'y') && student2.date[2] > 100)
+		while (student2.date[0] < 1 || student2.date[0] > 31)
 		{
-			cout << "Подтвердите правильность ввода да/нет буквой (y/n)\n";
-			cin >> l;
-			if (l == 'n')
-				student2.date[2] = getValue("* Введите год: ");
+			student2.date[0] = getValue("* Введите день: ");
+			if (student2.date[0] < 1 || student2.date[0] > 31)
+				cout << "\nОшибка ввода, день не может иметь такое значение!\n\n";
 		}
+		while (student2.date[1] < 1 || student2.date[1] > 12)
+		{
+			student2.date[1] = getValue("* Введите месяц: ");
+			if (student2.date[1] < 1 || student2.date[1] > 12)
+				cout << "\nОшибка ввода, месяц не может иметь такое значение!\n\n";
+		}
+		student2.date[2] = getValue("* Введите год: ");
 		if (student2.date[2] < 24)
 			student2.date[2] += 2000;
 		else if (student2.date[2] < 101)
 			student2.date[2] += 1900;
+		else if (student2.date[2] < 1900)
+		{
+			while (student2.date[2] < 1900 && (l != 'y') && student2.date[2] > 100)
+			{
+				cout << "Подтвердите правильность ввода да/нет буквой (y/n)\n";
+				cin >> l;
+				if (l == 'n')
+					student2.date[2] = getValue("* Введите год: ");
+			}
+			if (student2.date[2] < 24)
+				student2.date[2] += 2000;
+			else if (student2.date[2] < 101)
+				student2.date[2] += 1900;
+		}
+		else if (student2.date[2] > 2023)
+		{
+			cout << "Год не может привышать 2023. Попробуйте снова!\n";
+			student2.date[2] = getValue("* Введите год: ");
+		}
+		if ((student2.date[0] > 29 && student2.date[1] == 2 && ((student2.date[2] % 4) == 0)) || (student2.date[0] > 28 && student2.date[1] == 2 && ((student2.date[2] % 4) != 0)) || (student2.date[0] > 30 && student2.date[1] % 2 == 0))
+		{
+			student2.date[0] = 0;
+			student2.date[1] = 0;
+			student2.date[2] = 0;
+			cout << "\nОшибка ввода, такая дата невозможна!\n\n";
+		}
 	}
 	cout << "Введите адрес: ";
 	cin.get();
 	cin.getline(student2.address, 255);
-	student2.rating = getValue("Введите рейтинг: ");
+	student2.rating = getValueF("Введите рейтинг: ");
 	cout << "_______________________________________________________________\n";
 	return 0;
 }
