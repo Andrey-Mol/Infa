@@ -1,0 +1,133 @@
+#include <iostream>
+#include <string>
+#include <windows.h>
+using namespace std;
+
+int n;
+int getValue(string query)
+{
+    int value;
+    cout << query;
+    while (!(cin >> value) || value<1)
+    {
+        cin.clear(); //Сбрасываем флаг ошибки, если таковая была
+        cin.ignore(1000, '\n'); //Игнорируем оставшиеся в потоке данные
+        cout << "Ошибка ввода, попробуйте снова: ";
+    }
+    return value;
+}
+
+string* vvod_mas(string* m)
+{
+    cout << "______________________________________________\n\n";
+    for (int i = 0; i < n; i++)
+    {
+        cout << "Введите " << i + 1 << " строку:\n";
+        getline(cin>>ws, m[i]);
+    }
+    return m;
+}
+
+string* vivod_mas(string* m)
+{
+    cout << "______________________________________________\n" << "\nПолучившийся массив строк:\n\n";
+    for (int i = 0; i < n; ++i)
+    {
+		cout << i + 1 << ". " << m[i] << endl;
+    }
+    return m;
+}
+
+string* udalenie_strok(string* m)
+{
+	int y = 0;
+	while (y <= 0 || y > n)
+	{
+		y = getValue("Введите номер удаляемой строки: ");
+		if (y <= 0 || y > n)
+			cout << "\nТакой строки в массиве нет, попробуйте другую!\n\n";
+	}
+		
+	string* mas2 = new string[n-1];
+	int i = 0;
+	while (i+1 < y)
+	{
+		mas2[i] = m[i];
+		i++;
+	}
+	while (i+1<n)
+	{
+		mas2[i] = m[i+1];
+		i++;
+	}
+	n--;
+	return mas2;
+}
+
+void menu()
+{
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
+	string* mas = new string[0];
+	int deistvie = 1;
+	int vvod = 0;
+	while (deistvie != 0)
+	{
+		cout << "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+		cout << 1 << " - ввод массива строк\n" << 2 << " - вывод массива строк\n" << 3 << " - удаление строки с заданным номером\n" << 0 << " - завершение работы программы\n \n";
+		cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+		cin >> deistvie;
+		switch (deistvie)
+		{
+		case 1:
+		{
+			system("cls");
+			n = getValue("Введите количествово строк: ");
+			mas = new string[n];
+			mas=vvod_mas(mas);
+			system("cls");
+			break;
+		}
+		case 2:
+		{			
+			system("cls");
+			if (n>0)
+				vivod_mas(mas);
+			else 
+				cout << "\nМассив пуст!\n\n";
+			break;
+		}
+		case 3:
+		{
+			system("cls");
+			if (n > 0)
+			{
+				mas = udalenie_strok(mas);
+				system("cls");
+				if (n == 0)
+					cout << "\nМассив пуст!\n\n";
+				else
+					cout << "\nУдалено!\n\n";
+			}
+			else 
+				cout << "\nМассив пуст!\n\n";
+			break;
+		}
+		case 0:
+			system("cls");
+			cout << "\nСпасибо за выбор нашей программы!:)\n\n";
+			system("pause");
+			break;
+		default:
+			system("cls");
+			cout << "\nВведено неверное значение, попробуйте ещё раз.\n\n";
+			break;
+		}
+	}
+}
+
+int main()
+{
+    menu(); 
+	return 0;
+}
