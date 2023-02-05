@@ -1,0 +1,300 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <stdio.h>
+#include <windows.h>
+using namespace std;
+
+int const MAXLINE = 255;
+char filename[] = "F1.txt";
+char filename_buf[] = "F2.txt";
+int n = 0;
+char mas_zifr[] = { '0','1','2','3','4','5','6','7','8','9' };
+
+int getValue(string query)
+{
+	int value;
+	cout << query;
+	while (!(cin >> value) || value < 1)
+	{
+		cin.clear(); //Сбрасываем флаг ошибки, если таковая была
+		cin.ignore(1000, '\n'); //Игнорируем оставшиеся в потоке данные
+		cout << "Ошибка ввода, попробуйте снова: ";
+	}
+	return value;
+}
+
+bool find(char A)
+{
+	for (int i = 0; i < 10; i++)
+	{
+		if (A == mas_zifr[i])
+		{
+			return 1;
+		}
+	}
+	return 0;
+}
+
+char** createListWords(char* row, int& count_words)
+{
+	int j = 0;
+	int i = 0;
+	char** words = new char* [MAXLINE];
+	for (int i = 0; i < MAXLINE; i++)
+	{
+		words[i] = new char[MAXLINE];
+	}
+	char pre_letter = ' ', letter;
+
+	bool flag = 1;
+	const char ABC[] = ".,;:!?";
+	int n = strlen(ABC);
+	while (*row != '\0' && *row != '\n')
+	{
+		flag = 1;
+		letter = *row;
+		for (int k = 0; k < n; k++)
+		{
+			if (letter == ABC[k])
+				flag = 0;
+		}
+		if (letter == ' ' && pre_letter != ' ')
+		{
+			words[i][j] = '\0';
+			j = 0;
+			i++;
+		}
+		else if ((letter != ' ' || pre_letter != ' ') && flag)
+		{
+			words[i][j] = letter;
+			++j;
+		}
+		++row;
+		pre_letter = letter;
+	}
+	words[i][j] = '\0';
+	count_words = i + 1;
+	return words;
+}
+void deleteListWords(char** words)
+{
+	for (int i = 0; i < MAXLINE; i++)
+	{
+		delete[] words[i];
+	}
+	delete[] words;
+}
+void createFile(unsigned int n)
+{
+	FILE* file; 
+	char row[MAXLINE];
+	if ((file = fopen(filename, "w")) == NULL) 
+	{
+		cout << "ЧЕТ НЕ ТО" << endl;
+		return;
+	}
+	cout << "Введите " << n << "-строк" << endl;
+	cin.get();
+	for (int i = 1; i <= n; i++)
+	{
+		cin.getline(row, MAXLINE);
+		fputs(row, file);
+		fputs("\n", file);
+	}
+	fclose(file); 
+	return;
+}
+void outputFile(char* filename) 
+{
+	FILE* file;
+	char row[MAXLINE];
+	int y=0;
+	if ((file = fopen(filename, "rb")) == NULL)
+	{
+		cout << "ЧЕТ НЕ ТО" << endl;
+		return;
+	}
+	while (!feof(file) && fgets(row, MAXLINE, file))
+	{
+		cout << row;
+		y++;
+	}
+	if (y == 0) cout << "Файл пуст!";
+	fclose(file);
+	return;
+}
+int coperating()
+{
+	FILE* file1;
+	FILE* file2;
+	int y=0;
+	char row[MAXLINE];
+	if (((file1 = fopen(filename, "r")) == NULL) || ((file2 = fopen(filename_buf, "w")) == NULL))
+	{
+		cout << "ЧЕТ НЕ ТО" << endl;
+		return 0;
+	}
+
+	while (fgets(row, MAXLINE, file1) != NULL)
+	{
+		int k = 0; 
+		int count_words = 0;
+		char** words = createListWords(row, count_words); 
+		for (int i = 0; i < count_words - 1; ++i)
+		{
+			for (int j = i + 1; j < count_words; ++j)
+			{
+				if (strcmp(words[i], words[j]) == 0)
+					++k;
+			}
+		}
+		if (k >= 1)
+		{
+			fputs(row, file2);
+			y++;
+		}
+		deleteListWords(words);
+	}
+	fclose(file1);
+	fclose(file2);
+	return y;
+}
+void slovo(char* filename)
+{
+	FILE* file1;
+	if ((file1 = fopen(filename, "r")) == NULL)
+	{
+		cout << "Ошибка!";
+		exit(1);
+	}
+	char row[MAXLINE];
+	int maxz = 0; //макс кол-во А
+	int numz = 0;
+	int total = 0; //счетчик номера слова
+	char wordMaxz[MAXLINE] = "";
+	int count_words = 0; //кол-во слов в строке
+	while (fgets(row, MAXLINE, file1) != NULL)
+	{
+		char** words = createListWords(row, count_words); //создаем массив из слов
+		for (int i = 0; i < count_words; ++i)
+		{
+			total += 1;
+			int count_z = 0;
+			for (int j = 0; j < strlen(words[i]); ++j)
+			{
+				if (find(words[i][j]))
+				{
+					count_z++;
+				}
+			}
+			if (count_z > maxz)
+			{
+				strcpy(wordMaxz, words[i]);
+				maxz = count_z;
+				numz = total;
+			}
+		}
+		deleteListWords(words);
+	}
+	if (maxz)
+		cout << "Слово, с самым большим количеством цифр: " << wordMaxz << "(" << maxz << " цифр)" << " под номером " << numz << endl;
+	else 
+		cout << "В файле нет слов с цифрами!\n";
+	fclose(file1);
+
+}
+
+void menu()
+{
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
+	int deistvie = 1;
+	int vvod = 0;
+	while (deistvie != 0)
+	{
+		cout << "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+		cout << 1 << " - формирование файла\n" << 2 << " - печать файла\n" << 3 << " - копирование во второй файл строк, в которых не менее 2х одинаковых слов\n" << 4 << " - определение номера слова, в котором больше всего цифр\n" << 0 << " - завершение работы программы\n \n";
+		cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+		cin >> deistvie;
+		switch (deistvie)
+		{
+		case 1:
+		{
+			system("cls");
+			n = getValue("Введите количествово строк: ");
+			createFile(n);
+			system("cls");
+			break;
+		}
+		case 2:
+		{
+			system("cls");
+			int y = 0;
+			y = getValue("Введите номер файла, который хотите распечатать: ");
+			if (y != 1 && y != 2)
+				cout << "Некорректный номер. Попробуйте ещё раз.";
+			else
+			{
+				system("cls");
+				if (y == 1)
+				{
+					cout << "Файл 1 содержит:\n\n";
+					outputFile(filename);
+				}
+				else if (y == 2)
+				{
+					cout << "Файл 2 содержит:\n\n";
+					outputFile(filename_buf);
+				}
+			}
+			break;
+		}
+		case 3:
+		{
+			system("cls");
+			cout << "\n\nВо второй файл скопировано " << coperating() << " строк.\n\n";
+			break;
+		}
+		case 4:
+		{
+			system("cls");
+			int y = 0;
+			y = getValue("Введите номер файла, в котором хотите найти слово с наибольшим количеством цифр: ");
+			if (y != 1 && y != 2)
+				cout << "Некорректный номер. Попробуйте ещё раз.";
+			else
+			{
+				system("cls");
+				if (y == 1)
+				{
+					cout << "Файл 1 содержит:\n\n";
+					slovo(filename);
+				}
+				else if (y == 2)
+				{
+					cout << "Файл 2 содержит:\n\n";
+					slovo(filename_buf);
+				}
+			}
+			break;
+		}
+		case 0:
+			system("cls");
+			cout << "\nСпасибо за выбор нашей программы!:)\n\n";
+			system("pause");
+			break;
+		default:
+			system("cls");
+			cout << "\nВведено неверное значение, попробуйте ещё раз.\n\n";
+			break;
+		}
+	}
+}
+
+
+int main()
+{
+	int count_words = 0;
+	menu();
+	return 0;
+}
