@@ -13,19 +13,15 @@ char next_surname[255];
 
 int getValue(string query)
 {
-	float value;
-	cout << query.c_str();
-	while (!(cin >> value))
-	{
-		if (cin.eof())
-		{
-			throw "eof";
-		}
-		cin.clear(); //Сбрасываем флаг ошибки, если таковая была
-		cin.ignore(1000, '\n'); //Игнорируем оставшиеся в потоке данные
-		cout << "Ошибка ввода, попробуйте снова: ";
-	}
-	return value;
+    int value;
+    cout << query;
+    while (!(cin >> value) || value<1)
+    {
+        cin.clear(); //Сбрасываем флаг ошибки, если таковая была
+        cin.ignore(1000, '\n'); //Игнорируем оставшиеся в потоке данные
+        cout << "Ошибка ввода, попробуйте снова: ";
+    }
+    return value;
 }
 
 struct Student
