@@ -126,6 +126,82 @@ Student* zapolnenie()
 	cin.get();
 	return student;
 }
+Student* zapolnenie(int mas[8])
+{
+	char l = 'r';
+	Student* student = new Student;
+	if (mas[0] == 1 || mas[1] == 1 || mas[2] == 1)
+	{
+		cout << "Введите ФИО: \n";
+		if (mas[0] == 1)
+		{
+			cout << "* Введите фамилию: ";
+			cin.getline(student->surname, 255);
+		}
+		if (mas[1] == 1)
+		{
+			cout << "* Введите имя: ";
+			cin.getline(student->name, 255);
+		}
+		if (mas[2] == 1)
+		{
+			cout << "* Введите отчество: ";
+			cin.getline(student->surname2, 255);
+		}
+	}
+	if (mas[3] == 1 || mas[4] == 1 || mas[5] == 1)
+	{
+		cout << "Введите дату рождения: \n";
+		if (mas[3] == 1)
+		{
+			student->date[0] = getValue("* Введите день: ");
+		}
+		if (mas[4] == 1)
+		{
+			student->date[1] = getValue("* Введите месяц: ");
+		}
+		if (mas[5] == 1)
+		{
+			student->date[2] = getValue("* Введите год: ");
+			if (student->date[2] < 24)
+				student->date[2] += 2000;
+			else if (student->date[2] < 101)
+				student->date[2] += 1900;
+			else if (student->date[2] < 1900)
+			{
+				while (student->date[2] < 1900 && (l != 'y') && student->date[2] > 100)
+				{
+					cout << "Подтвердите правильность ввода да/нет буквой (y/n)\n";
+					cin >> l;
+					if (l == 'n')
+						student->date[2] = getValue("* Введите год: ");
+				}
+				if (student->date[2] < 24)
+					student->date[2] += 2000;
+				else if (student->date[2] < 101)
+					student->date[2] += 1900;
+			}
+			else if (student->date[2] > 2023)
+			{
+				cout << "Год не может привышать 2023. Попробуйте снова!\n";
+				student->date[2] = getValue("* Введите год: ");
+			}
+		}
+	}
+	if (mas[6] == 1)
+	{
+		cout << "Введите адрес: ";
+		cin.get();
+		cin.getline(student->address, 255);
+	}
+	if (mas[7] == 1)
+	{
+		student->rating = getValueF("Введите рейтинг: ");
+	}
+	cout << "_______________________________________________________________\n";
+	cin.get();
+	return student;
+}
 bool list_is_empty(List* list) 
 {
 	return list == nullptr || n == 0;
@@ -139,23 +215,24 @@ bool ravenstvo_strok(char* a, char* b)
 		return 1;
 	}
 }
-bool ravenstvo(Student* a, Student* b)
+bool ravenstvo(Student* a, Student* b, int mas[8])
 {
-	if (!(ravenstvo_strok(a->surname,b->surname)))
+	if (mas[0] == 1 && !(ravenstvo_strok(a->surname, b->surname)))
 		return 0;
-	if (!(ravenstvo_strok(a->name, b->name)))
+	if (mas[1] == 1 && !(ravenstvo_strok(a->name, b->name)))
 		return 0;
-	if (!(ravenstvo_strok(a->surname2, b->surname2)))
+	if (mas[2] == 1 && !(ravenstvo_strok(a->surname2, b->surname2)))
 		return 0;
-	if (!(ravenstvo_strok(a->address, b->address)))
+	if (mas[3] == 1 && (a->date[0] != b->date[0]))
 		return 0;
-	if (a->rating != b->rating)
+	if (mas[4] == 1 && (a->date[1] != b->date[1]))
 		return 0;
-	for (int i = 0; i < 3; i++)
-	{
-		if (a->date[i] != b->date[i])
-			return 0;
-	}
+	if (mas[5] == 1 && (a->date[2] != b->date[2]))
+		return 0;
+	if (mas[6] == 1 && !(ravenstvo_strok(a->address, b->address)))
+		return 0;
+	if (mas[7] == 1 && (a->rating != b->rating))
+		return 0;
 	return 1;
 }
 
@@ -233,40 +310,38 @@ void outputList(List* list)
 } //вывод содержимого файла //
 
 
-void remove_obj(List* list, Student* student)
+void remove_obj(List* list, Student* student,int mas[8])
 {
 	if (list_is_empty(list)) 
 		cout << "Список пуст, нечего удалять!\n";
 	else
 	{
 		Student* temp = list->head;
-		if (ravenstvo(list->head, list->tail) && ravenstvo(list->head, student))
+		if (ravenstvo(list->head, list->tail, mas) && ravenstvo(list->head, student, mas))
 		{
 			delete list->head;
 			list->head = nullptr;
 			list->tail = nullptr;
-			n--;
-			system("cls");
-			cout << "\nУченик успешно удалён, список пуст!\n\n";
+			n=0;
 			return;
 		}
-		else if (ravenstvo(list->head, student))
+		else if (ravenstvo(list->head, student, mas))
 		{
 			temp = list->head;
 			list->head = list->head->next;
 			delete temp;
 			n--;
 			system("cls");
-			cout << "\nУченик успешно удалён!\n\n";
+			remove_obj(list, student, mas);
 			return;
 		}
 		else
 		{
 			while (temp->next != nullptr)
 			{
-				if (ravenstvo(temp->next, student))
+				if (ravenstvo(temp->next, student, mas))
 				{
-					if (ravenstvo(temp->next, list->tail))
+					if (ravenstvo(temp->next, list->tail, mas))
 					{
 						delete list->tail;
 						list->tail = temp;
@@ -279,14 +354,11 @@ void remove_obj(List* list, Student* student)
 						temp->next = temp2;
 					}
 					n--;
-					system("cls");
-					cout << "\nУченик успешно удалён!\n\n";
+					remove_obj(list, student, mas);
 					return;
 				}
 				temp = temp->next;
 			}
-			system("cls");
-			cout << "\nЭлемент не найден!\n\n";
 		}
 
 	}
@@ -573,10 +645,33 @@ void menu()
 		}
 		case 6:
 		{
+			int j,x,v = n;
+			int mas[] = { 0,0,0,0,0,0,0,0 };
 			system("cls");
-			cout << "Заполните форму для удаления:\n";
-			cin.get();
-			remove_obj(list, zapolnenie());
+			cout << "Выберете поля, по которым будет происходить удаление. Введите количество полей для сравнения: ";
+			cin >> j;
+			cout << "\n1 - Фамилия;\n";
+			cout << "2 - Имя;\n";
+			cout << "3 - Отчество;\n";
+			cout << "4 - День рождения;\n";
+			cout << "5 - Месяц рождения;\n";
+			cout << "6 - Год рождения;\n";
+			cout << "7 - Адрес;\n";
+			cout << "8 - Рейтинг;\n";
+			for (int i = 0; i < j; i++)
+			{
+				cin >> x;
+				mas[x-1] = 1;
+			}
+			system("cls");
+			//cin.get();
+			remove_obj(list, zapolnenie(mas), mas);
+			if (n < v)
+				cout << "\nУдаление прошло успешно!\n\n";
+			else if (n == 0)
+				cout << "\nУдаление прошло успешно, список пуст!\n\n";
+			else 
+				cout << "\nЭлементов по данным параметрам не найдено!\n\n";
 			system("pause");
 			break;
 		}
@@ -636,3 +731,11 @@ void menu()
 	}
 }
 int main()
+{
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
+	cout << "Привет, дорогой Друг. Это программа создана для работы с базой данных учеников. Расскажу тебе о своих возможностях.\n";
+	cout << "Для выполнения нижеследующих действий тебе необходимо ввести соответствующую цифру\n";
+	menu();
+	return 0;
+}
