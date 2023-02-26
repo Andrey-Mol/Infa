@@ -132,6 +132,7 @@ Student* zapolnenie(int mas[8])
 	Student* student = new Student;
 	if (mas[0] == 1 || mas[1] == 1 || mas[2] == 1)
 	{
+		cin.get();
 		cout << "Введите ФИО: \n";
 		if (mas[0] == 1)
 		{
@@ -199,7 +200,6 @@ Student* zapolnenie(int mas[8])
 		student->rating = getValueF("Введите рейтинг: ");
 	}
 	cout << "_______________________________________________________________\n";
-	cin.get();
 	return student;
 }
 bool list_is_empty(List* list) 
@@ -648,7 +648,7 @@ void menu()
 			int j,x,v = n;
 			int mas[] = { 0,0,0,0,0,0,0,0 };
 			system("cls");
-			cout << "Выберете поля, по которым будет происходить удаление. Введите количество полей для сравнения: ";
+			cout << "Введите количество полей, по которым будет происходить удаление: ";
 			cin >> j;
 			cout << "\n1 - Фамилия;\n";
 			cout << "2 - Имя;\n";
@@ -658,13 +658,13 @@ void menu()
 			cout << "6 - Год рождения;\n";
 			cout << "7 - Адрес;\n";
 			cout << "8 - Рейтинг;\n";
+			cout << "Выберете номера полей, для сдаления: ";
 			for (int i = 0; i < j; i++)
 			{
 				cin >> x;
 				mas[x-1] = 1;
 			}
 			system("cls");
-			//cin.get();
 			remove_obj(list, zapolnenie(mas), mas);
 			if (n < v)
 				cout << "\nУдаление прошло успешно!\n\n";
