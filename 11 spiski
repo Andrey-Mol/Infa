@@ -130,11 +130,33 @@ bool list_is_empty(List* list)
 {
 	return list == nullptr || n == 0;
 }
+bool ravenstvo_strok(char* a, char* b)
+{
+	for (int i = 0; i < 255; i++)
+	{
+		if (a[i] != b[i])
+			return 0;
+		return 1;
+	}
+}
 bool ravenstvo(Student* a, Student* b)
 {
-	if (a->rating == b->rating)
-		return 1;
-	return 0;
+	if (!(ravenstvo_strok(a->surname,b->surname)))
+		return 0;
+	if (!(ravenstvo_strok(a->name, b->name)))
+		return 0;
+	if (!(ravenstvo_strok(a->surname2, b->surname2)))
+		return 0;
+	if (!(ravenstvo_strok(a->address, b->address)))
+		return 0;
+	if (a->rating != b->rating)
+		return 0;
+	for (int i = 0; i < 3; i++)
+	{
+		if (a->date[i] != b->date[i])
+			return 0;
+	}
+	return 1;
 }
 
 List* createList(int size) //Создание БД с n-структурами Student;
@@ -614,11 +636,3 @@ void menu()
 	}
 }
 int main()
-{
-	SetConsoleCP(1251);
-	SetConsoleOutputCP(1251);
-	cout << "Привет, дорогой Друг. Это программа создана для работы с базой данных учеников. Расскажу тебе о своих возможностях.\n";
-	cout << "Для выполнения нижеследующих действий тебе необходимо ввести соответствующую цифру\n";
-	menu();
-	return 0;
-}
