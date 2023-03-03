@@ -1,0 +1,148 @@
+#include <iostream>
+#include <fstream>
+#include<string>
+#include<windows.h>
+using namespace std;
+
+int n;
+int* dliny;
+int max_c;
+int max_number;
+string max_s;
+char filename[] = "file1.txt";
+char filename2[] = "file2.txt";
+
+void createFile()
+{
+    ofstream file1(filename);
+    for (int i = 0; i < n; i++)
+    {
+        string s;
+        getline(cin, s);
+        file1 << s << endl;
+    }
+    file1.close();
+}
+
+void kolichestvo_slov()
+{
+    ifstream fin(filename);
+    for (int j = 0; j < n; j++)
+    {
+        string s;
+        getline(fin, s);
+        if (s[0] != '\0')
+        {
+            if (s[0] != 32)
+                dliny[j] = 1;
+            else
+                dliny[j] = 0;
+            for (int i = 0; i < s.length() - 1; i++)
+            {
+                if (s[i] == 32 && s[i + 1] != 32)
+                    dliny[j]++;
+            }
+        }
+        else
+        {
+            dliny[j] = 0;
+        }
+    }
+    fin.close();
+}
+
+void max_elem(char* filename)
+{
+    max_c = 0;
+    int c;
+    int num = 0;
+    string s;
+    ifstream fin(filename);
+    while (!fin.eof())
+    {
+        num++;
+        c = 0;
+        fin >> s;
+        for (int i = 0; i < s.length(); i++)
+        {
+            if (s[i] >= 48 && s[i] <= 57)
+                c++;
+        }
+        if (c > max_c)
+        {
+            max_c = c;
+            max_number = num;
+            max_s = s;
+        }
+    }
+}
+
+void copyFile()
+{
+    ifstream fin(filename);
+    ofstream fout(filename2);
+    int m = 0;
+    for (int i = 0; i < n; i++)
+    {
+        if (dliny[i] > 0)
+        {
+            string* a = new string[dliny[i]];
+            for (int j = 0; j < dliny[i]; j++)
+            {
+                fin >> a[j];
+            }
+            for (int j = 0; j < dliny[i]; j++)
+                for (int y = j+1; y < dliny[i]; y++)
+                    if (a[j] == a[y])
+                    {
+                        for (int r = 0; r < dliny[i]; r++)
+                        {
+                            fout << a[r] << " ";
+                        }
+                        j = dliny[i];
+                        fout << endl;
+                    }
+            delete [] a;
+        }    
+    }
+    fin.close();
+    fout.close();
+}
+
+void printFile(char* filename)
+{
+    ifstream fin(filename);
+    string s;
+    fin >> s;
+    while (s != "\0" && !fin.eof())
+    {
+        cout << s << " ";
+        if (fin.get() == '\n')
+            cout << endl;
+        fin >> s;
+    }
+    fin.close();
+}
+
+int main()
+{
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    cout << "Введите количество строк файла: ";
+    cin >> n;
+    cin.get();
+    dliny = new int [n];
+    createFile();
+    kolichestvo_slov();
+    copyFile();
+    cout << "\nФайл 1:\n";
+    printFile(filename);
+    cout << "\nФайл 2:\n";
+    printFile(filename2);
+    cout << "\n\nЭлемент с наибольшим количеством цифр:\n";
+    max_elem(filename);
+    cout << "В файле 1 - " << max_s << " под номером " << max_number << ", содержит " << max_c << " цифр.\n";
+    max_elem(filename2);
+    cout << "В файле 2 - " << max_s << " под номером " << max_number << ", содержит " << max_c << " цифр.\n";
+    return 0;
+}
